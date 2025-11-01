@@ -1,10 +1,7 @@
-import React, { useState, useEffect } from 'react'
-import { motion, AnimatePresence } from 'framer-motion'
+import React from 'react'
+import { motion } from 'framer-motion'
 
 const Testimonials = () => {
-  const [currentIndex, setCurrentIndex] = useState(0)
-  const [itemsPerView, setItemsPerView] = useState(3)
-
   const handleWhatsAppBooking = () => {
     const phoneNumber = '7019322516'
     const message = encodeURIComponent('Hello! I would like to book a therapy session.')
@@ -56,47 +53,6 @@ const Testimonials = () => {
     },
   ]
 
-  useEffect(() => {
-    const updateItemsPerView = () => {
-      if (window.innerWidth < 768) {
-        setItemsPerView(1)
-      } else if (window.innerWidth < 1024) {
-        setItemsPerView(2)
-      } else {
-        setItemsPerView(3)
-      }
-    }
-
-    updateItemsPerView()
-    window.addEventListener('resize', updateItemsPerView)
-    return () => window.removeEventListener('resize', updateItemsPerView)
-  }, [])
-
-  useEffect(() => {
-    const newTotalSlides = Math.ceil(testimonials.length / itemsPerView)
-    if (currentIndex >= newTotalSlides) {
-      setCurrentIndex(0)
-    }
-  }, [itemsPerView, testimonials.length])
-
-  const totalSlides = Math.ceil(testimonials.length / itemsPerView)
-
-  const nextSlide = () => {
-    setCurrentIndex((prev) => (prev + 1) % totalSlides)
-  }
-
-  const prevSlide = () => {
-    setCurrentIndex((prev) => (prev - 1 + totalSlides) % totalSlides)
-  }
-
-  useEffect(() => {
-    const autoSlide = setInterval(() => {
-      setCurrentIndex((prev) => (prev + 1) % totalSlides)
-    }, 5000) // Auto-advance every 5 seconds
-
-    return () => clearInterval(autoSlide)
-  }, [totalSlides])
-
   return (
     <section id="testimonials" className="py-24 md:py-32 bg-gradient-to-br from-sage-green via-mint-cream to-cream relative overflow-hidden">
       {/* Curved section divider */}
@@ -122,102 +78,45 @@ const Testimonials = () => {
           </p>
         </motion.div>
 
-        {/* Carousel Container */}
-        <div className="relative max-w-7xl mx-auto">
-          <div className="overflow-hidden">
-            <AnimatePresence mode="wait">
-              <motion.div
-                key={currentIndex}
-                initial={{ opacity: 0, x: 100 }}
-                animate={{ opacity: 1, x: 0 }}
-                exit={{ opacity: 0, x: -100 }}
-                transition={{ duration: 0.5, ease: "easeInOut" }}
-                className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10"
-              >
-                {testimonials
-                  .slice(currentIndex * itemsPerView, Math.min(currentIndex * itemsPerView + itemsPerView, testimonials.length))
-                  .map((testimonial, index) => (
-                    <motion.div
-                      key={currentIndex * itemsPerView + index}
-                      initial={{ opacity: 0, y: 20 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.4, delay: index * 0.1 }}
-                      whileHover={{ y: -8, scale: 1.02 }}
-                      className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
-                    >
-                      <div className="flex items-center justify-between mb-6">
-                        <div className="flex gap-1">
-                          {[...Array(testimonial.rating)].map((_, i) => (
-                            <span key={i} className="text-yellow-400 text-lg">⭐</span>
-                          ))}
-                        </div>
-                        <span className="text-xs text-gray-400 uppercase tracking-wider font-body">
-                          {testimonial.service}
-                        </span>
-                      </div>
-                      
-                      <blockquote className="text-gray-700 leading-relaxed font-body mb-6 italic">
-                        "{testimonial.text}"
-                      </blockquote>
-                      
-                      <div className="flex items-center pt-6 border-t border-gray-100">
-                        <div className="w-1 h-12 bg-mustard-yellow/40 mr-4"></div>
-                        <div>
-                          <p className="text-gray-800 font-body font-medium mb-1">
-                            {testimonial.name}
-                          </p>
-                          <p className="text-gray-500 text-sm font-body">
-                            {testimonial.location}
-                          </p>
-                        </div>
-                      </div>
-                    </motion.div>
+        <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8 lg:gap-10 max-w-7xl mx-auto">
+          {testimonials.map((testimonial, index) => (
+            <motion.div
+              key={index}
+              initial={{ opacity: 0, y: 40 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ duration: 0.6, delay: index * 0.1 }}
+              whileHover={{ y: -8, scale: 1.02 }}
+              className="bg-white p-8 rounded-3xl shadow-lg hover:shadow-xl transition-all duration-300 border border-gray-100"
+            >
+              <div className="flex items-center justify-between mb-6">
+                <div className="flex gap-1">
+                  {[...Array(testimonial.rating)].map((_, i) => (
+                    <span key={i} className="text-yellow-400 text-lg">⭐</span>
                   ))}
-              </motion.div>
-            </AnimatePresence>
-          </div>
-
-          {/* Navigation Arrows */}
-          {totalSlides > 1 && (
-            <>
-              <button
-                onClick={prevSlide}
-                className="absolute left-0 top-1/2 -translate-y-1/2 -translate-x-4 lg:-translate-x-12 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-all duration-300 z-10 border border-gray-100"
-                aria-label="Previous testimonials"
-              >
-                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" />
-                </svg>
-              </button>
-              <button
-                onClick={nextSlide}
-                className="absolute right-0 top-1/2 -translate-y-1/2 translate-x-4 lg:translate-x-12 bg-white shadow-lg rounded-full p-3 hover:bg-gray-50 transition-all duration-300 z-10 border border-gray-100"
-                aria-label="Next testimonials"
-              >
-                <svg className="w-6 h-6 text-gray-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 5l7 7-7 7" />
-                </svg>
-              </button>
-            </>
-          )}
-
-          {/* Dots Indicator */}
-          {totalSlides > 1 && (
-            <div className="flex justify-center gap-2 mt-8">
-              {Array.from({ length: totalSlides }).map((_, index) => (
-                <button
-                  key={index}
-                  onClick={() => setCurrentIndex(index)}
-                  className={`transition-all duration-300 rounded-full ${
-                    index === currentIndex
-                      ? 'bg-black w-8 h-2'
-                      : 'bg-gray-300 w-2 h-2 hover:bg-gray-400'
-                  }`}
-                  aria-label={`Go to slide ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
+                </div>
+                <span className="text-xs text-gray-400 uppercase tracking-wider font-body">
+                  {testimonial.service}
+                </span>
+              </div>
+              
+              <blockquote className="text-gray-700 leading-relaxed font-body mb-6 italic">
+                "{testimonial.text}"
+              </blockquote>
+              
+              <div className="flex items-center pt-6 border-t border-gray-100">
+                <div className="w-1 h-12 bg-mustard-yellow/40 mr-4"></div>
+                <div>
+                  <p className="text-gray-800 font-body font-medium mb-1">
+                    {testimonial.name}
+                  </p>
+                  <p className="text-gray-500 text-sm font-body">
+                    {testimonial.location}
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          ))}
         </div>
 
         {/* CTA Section */}
